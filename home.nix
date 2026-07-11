@@ -29,6 +29,25 @@
     niri = {
       enableKeybinds = true;    # DMS's own action shortcuts (launcher/notifications/audio/...)
       enableSpawn = true;       # auto-start DMS with niri
+
+      # Our keybinds are declared in nix (programs.niri.settings.binds below)
+      # and land in hm.kdl via enableKeybinds. DMS's includes machinery also
+      # includes dms/binds.kdl AFTER hm.kdl, so a stray `dms keybinds set`
+      # would silently override the nix keymap. Drop "binds" from the include
+      # list so that can't happen. Keep the rest of the includes - they carry
+      # DMS's dynamic theming (dms/colors.kdl from matugen), alttab, layout and
+      # wpblur into niri, so disabling includes wholesale would break theming.
+      # (This does not silence DMS's enableKeybinds+includes warning, which only
+      # checks the two booleans - the warning is benign for this setup.)
+      includes.filesToInclude = [
+        "alttab"
+        "colors"
+        "cursor"
+        "layout"
+        "outputs"
+        "windowrules"
+        "wpblur"
+      ];
     };
 
     # Feature toggles - trim to what the 11" Air's modest hardware can afford
