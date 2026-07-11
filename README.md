@@ -74,6 +74,38 @@ once for convenience (no functional downside).
    `/etc/nixos`, you can `git init` right there rather than keeping a
    separate repo elsewhere.
 
+## Keybinds
+
+The keymap is a **nix base + DMS runtime overrides** setup:
+
+- **Base keymap lives in nix** (`home.nix`, `programs.niri.settings.binds`),
+  compiled into `~/.config/niri/hm.kdl`. This holds all the
+  window-management binds (terminal, focus/move, workspaces, etc.).
+  DMS ships **no default keymap of its own** - `dms keybinds show niri`
+  reports every bind as `source: "config"`, i.e. read back from this
+  file - so the nix block can't be dropped without falling back to
+  niri's raw built-in defaults.
+- **`enableKeybinds = true`** additionally injects DMS's ~15 *action*
+  binds (launcher, notifications, audio, power menu, ...) into `hm.kdl`.
+  These are DMS-specific, not window management.
+- **Runtime overrides** go through DMS. `~/.config/niri/config.kdl`
+  includes `dms/binds.kdl` *after* `hm.kdl`, so anything you set via
+  DMS wins over the nix base:
+  ```sh
+  dms keybinds set niri "Mod+Return" 'spawn "kitty"'   # override
+  dms keybinds remove niri "Mod+Return"                # revert to nix base
+  dms keybinds show niri                               # effective keymap
+  ```
+  Overrides persist in `~/.config/niri/dms/binds.kdl` (mutable home-dir
+  state, **not** tracked in this flake). Leave it empty to run purely
+  off the nix keymap.
+
+> **Note:** because both `enableKeybinds` and the DMS `includes` are on,
+> `nixos-rebuild` prints `not recommended to use both enableKeybinds and
+> includes.enable`. This is expected and benign - one gives DMS's action
+> binds, the other enables runtime overrides (and DMS's dynamic theming).
+> Silencing it would disable one of those. See Troubleshooting.
+
 ## Troubleshooting
 
 - **Wifi not detected:** check `dmesg | grep -i brcm` after boot. If
@@ -86,6 +118,12 @@ once for convenience (no functional downside).
 - **DMS UI too small/large:** check DMS's scale settings under its
   settings panel - the 1366x768 panel often needs a manual scale
   adjustment.
+- **`not recommended to use both enableKeybinds and includes.enable`
+  warning:** benign - see [Keybinds](#keybinds). It fires whenever both
+  booleans are on (which this config needs), regardless of
+  `filesToInclude`. Do **not** "fix" it by dropping `binds` from the
+  includes or disabling `includes` - that kills DMS runtime keybind
+  overrides / dynamic theming respectively.
 
 ## References
 
