@@ -88,5 +88,13 @@
   # Touchpad
   services.libinput.enable = true;
 
+  # --- Flatpak ----------------------------------------------------------
+  # xdg-desktop-portal is already provided (gnome backend, via niri-flake/DMS)
+  # and xdg-document-portal is running, so Flatpak apps get file access and
+  # portals out of the box - just enable the service. Add the flathub remote
+  # once at runtime: flatpak remote-add --if-not-exists flathub \
+  #   https://dl.flathub.org/repo/flathub.flatpakrepo
+  services.flatpak.enable = true;
+
   system.stateVersion = "26.05";
 }
