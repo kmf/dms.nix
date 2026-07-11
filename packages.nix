@@ -6,7 +6,7 @@
   home.packages = with pkgs; [
     ghostty   # terminal (bound to Mod+Return / Mod+T in home.nix)
     dsearch   # danksearch - file search backing DMS spotlight (nixpkgs 26.05)
-    maestral  # Dropbox client
+    maestral-gui  # Dropbox client (Qt system-tray GUI + sync daemon)
     brave     # browser (Apple Music via web/PWA; cider is broken in nixpkgs 26.05)
   ];
 }
