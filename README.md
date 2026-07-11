@@ -27,7 +27,8 @@ NixOS flake config for a MacBook Air 11" (A1465, 2013-2015) running
 |---|---|
 | `flake.nix` | Pins nixpkgs (26.05), pulls in `niri-flake`, DankMaterialShell (`stable`), `dankcalendar`, and home-manager |
 | `configuration.nix` | System config: hostname `bilbo`, networking, wifi, greetd + DMS greeter, niri, audio, power management, `fish` shell |
-| `home.nix` | home-manager config for user `kmf`: DMS + niri integration, declarative niri keybinds, package list (`ghostty`, `dsearch`) |
+| `home.nix` | home-manager config for user `kmf`: DMS + niri integration, declarative niri keybinds; imports `packages.nix` |
+| `packages.nix` | Additional user packages (`home.packages`), imported by `home.nix` - add new packages here |
 | `hardware-configuration.nix` | **Not included** - generate this yourself (see below), it's machine-specific |
 
 ## Setup
@@ -46,8 +47,8 @@ once for convenience (no functional downside).
    sudo nixos-generate-config
    ```
 
-2. Copy `flake.nix`, `configuration.nix`, and `home.nix` into
-   `/etc/nixos/`. Overwrite the placeholder `configuration.nix` that
+2. Copy `flake.nix`, `configuration.nix`, `home.nix`, and `packages.nix`
+   into `/etc/nixos/`. Overwrite the placeholder `configuration.nix` that
    `nixos-generate-config` also generates - you only need one.
 
    Directory should look like:
@@ -56,6 +57,7 @@ once for convenience (no functional downside).
    ├── flake.nix
    ├── configuration.nix
    ├── home.nix
+   ├── packages.nix
    └── hardware-configuration.nix
    ```
 

@@ -13,6 +13,8 @@
     inputs.dms.homeModules.dank-material-shell
     inputs.dms.homeModules.niri
     inputs.dankcalendar.homeModules.dank-calendar
+
+    ./packages.nix   # additional user packages
   ];
 
   # dankcalendar (dcal) - standalone calendar daemon (tray + reminders),
@@ -131,10 +133,7 @@
     "Mod+Shift+Slash".action = show-hotkey-overlay;
   };
 
-  home.packages = with pkgs; [
-    ghostty
-    dsearch   # danksearch - file search backing DMS spotlight (nixpkgs 26.05)
-  ];
+  # User packages live in ./packages.nix (imported above).
 
   programs.fish.enable = true;
 }
