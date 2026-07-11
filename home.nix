@@ -27,27 +27,20 @@
 
     # niri integration
     niri = {
-      enableKeybinds = true;    # DMS's own action shortcuts (launcher/notifications/audio/...)
+      enableKeybinds = true;    # DMS's own action shortcuts (launcher/notifications/audio/...) -> hm.kdl
       enableSpawn = true;       # auto-start DMS with niri
 
-      # Our keybinds are declared in nix (programs.niri.settings.binds below)
-      # and land in hm.kdl via enableKeybinds. DMS's includes machinery also
-      # includes dms/binds.kdl AFTER hm.kdl, so a stray `dms keybinds set`
-      # would silently override the nix keymap. Drop "binds" from the include
-      # list so that can't happen. Keep the rest of the includes - they carry
-      # DMS's dynamic theming (dms/colors.kdl from matugen), alttab, layout and
-      # wpblur into niri, so disabling includes wholesale would break theming.
-      # (This does not silence DMS's enableKeybinds+includes warning, which only
-      # checks the two booleans - the warning is benign for this setup.)
-      includes.filesToInclude = [
-        "alttab"
-        "colors"
-        "cursor"
-        "layout"
-        "outputs"
-        "windowrules"
-        "wpblur"
-      ];
+      # Leave `includes` at its default, which includes dms/binds.kdl. DMS has
+      # NO standalone default keymap - `dms keybinds show niri` reports every
+      # bind as source:"config", i.e. read back from OUR niri config (hm.kdl).
+      # dms/binds.kdl is an OVERRIDE layer: config.kdl includes it AFTER hm.kdl,
+      # so anything `dms keybinds set` writes at runtime wins over the nix base.
+      # Including it is exactly what makes DMS's runtime keybind editing take
+      # effect. The binds block below stays as the base keymap (DMS supplies
+      # none for window management, so it can't be dropped). This intentionally
+      # leaves DMS's benign "not recommended to use both enableKeybinds and
+      # includes" warning in place - unavoidable when you want BOTH the DMS
+      # action binds AND live runtime overrides.
     };
 
     # Feature toggles - trim to what the 11" Air's modest hardware can afford
