@@ -50,6 +50,17 @@
   };
   programs.fish.enable = true;
 
+  # --- 1Password ------------------------------------------------------
+  # Use the NixOS modules (not a bare package): they install the setuid
+  # 1Password-BrowserSupport helper and polkit rules needed for browser
+  # integration and system/biometric unlock. Unfree but Hydra-cached, so no
+  # source build. `op` is the CLI; the GUI is Electron (heavy-ish on 4 GB).
+  programs._1password.enable = true;              # `op` CLI
+  programs._1password-gui = {
+    enable = true;
+    polkitPolicyOwners = [ "kmf" ];               # who may use system auth
+  };
+
   # --- Nix settings ---------------------------------------------------
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
   nixpkgs.config.allowUnfree = true;
