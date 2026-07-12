@@ -131,6 +131,14 @@
 
     "Mod+Shift+E".action = quit;
     "Mod+Shift+Slash".action = show-hotkey-overlay;
+
+    # Keyboard backlight - the Air's F5/F6 emit these (hid_apple fnmode=3).
+    # DMS ships no kbd-brightness bind, so these base binds stand. brightnessctl
+    # writes smc::kbd_backlight via the `input`-group udev grant (configuration.nix).
+    "XF86KbdBrightnessDown".action =
+      spawn "brightnessctl" "--device=smc::kbd_backlight" "set" "10%-";
+    "XF86KbdBrightnessUp".action =
+      spawn "brightnessctl" "--device=smc::kbd_backlight" "set" "+10%";
   };
 
   # User packages live in ./packages.nix (imported above).

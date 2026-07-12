@@ -8,5 +8,6 @@
     dsearch   # danksearch - file search backing DMS spotlight (nixpkgs 26.05)
     maestral-gui  # Dropbox client (Qt system-tray GUI + sync daemon)
     brave     # browser (Apple Music via web/PWA; cider is broken in nixpkgs 26.05)
+    brightnessctl  # keyboard-backlight control (F5/F6 -> smc::kbd_backlight)
   ];
 }

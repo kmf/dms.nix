@@ -34,7 +34,29 @@ rediscover.
   revert this.
 
 - **`programs.light` was removed in nixpkgs 26.05.** Use
-  `hardware.acpilight.enable` for backlight control.
+  `hardware.acpilight.enable` for **screen** backlight control.
+
+- **Internal wifi needs `broadcom_sta` (`wl`), not brcmfmac/b43.** The card
+  is a BCM4360 (PCI `14e4:43a0`). `b43` finds it but rejects the 802.11ac PHY
+  (probe `-95`); `brcmfmac` has no PCIe binding for `43a0` (only `43602`
+  firmware ships) so it never claims it. Only the proprietary
+  `broadcom_sta`/`wl` works (verified associating, sees 5 GHz, on kernel
+  6.18). Config: `boot.extraModulePackages = [ config.boot.kernelPackages.broadcom_sta ]`,
+  `boot.kernelModules = [ "wl" ]`, blacklist `b43 bcma ssb brcmsmac brcmfmac`.
+  It's flagged **insecure** — allow by name via
+  `nixpkgs.config.allowInsecurePredicate` (the version-pinned
+  `permittedInsecurePackages` string breaks on every kernel bump). Taints the
+  kernel / disables some CPU mitigations — fine here. USB dongles
+  (rtl8xxxu etc.) are the fallback and how SSH stays reachable regardless.
+
+- **Keyboard backlight = `smc::kbd_backlight` LED + `brightnessctl`.** The
+  `applesmc` LED works out of the box but sits at 0 with no control wired up.
+  Add `pkgs.brightnessctl`, `services.udev.packages = [ pkgs.brightnessctl ]`
+  (its rule `chgrp input` the `leds` nodes), and put kmf in the **`input`**
+  group (not `video` — that's for the `backlight` subsystem). F5/F6 emit
+  `XF86KbdBrightness{Down,Up}` (hid_apple `fnmode=3`); bind them in
+  `home.nix` to `brightnessctl --device=smc::kbd_backlight set …`. DMS ships
+  no kbd-brightness bind so the nix base binds stand.
 
 - **Keep `services.openssh.enable = true`.** The flake didn't originally
   declare it; enabling then removing it drops the sshd the installer

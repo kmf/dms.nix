@@ -16,25 +16,36 @@
   # --- Networking ---------------------------------------------------------
   networking.hostName = "bilbo";
   networking.networkmanager.enable = true;
+  # Tailscale mesh VPN. After first rebuild, bring it up with `tailscale up`
+  # (interactive auth in a browser). tailscaled coexists fine with NM.
+  services.tailscale.enable = true;
   time.timeZone = "Africa/Johannesburg";
   i18n.defaultLocale = "en_ZA.UTF-8";
   services.openssh.enable = true;
 
-  # A1465 (2013-2015 11" Air) ships a Broadcom BCM4360 card (module
-  # BCM94360CS2), which the in-kernel brcmfmac driver handles fine on
-  # recent kernels - just needs the firmware blob.
+  # A1465 (2013-2015 11" Air) ships a Broadcom BCM4360 card (BCM94360CS2,
+  # PCI 14e4:43a0). The in-kernel drivers DON'T drive it: b43 finds the card
+  # but rejects its 802.11ac PHY (probe -95), and brcmfmac has no PCIe binding
+  # for 43a0 (only 43602 firmware ships). The only working driver is the
+  # proprietary broadcom-sta (wl) - verified building + associating (sees 5GHz
+  # APs) on kernel 6.18. It taints the kernel and is incompatible with some CPU
+  # security mitigations; acceptable on this casual-use Air.
   hardware.enableRedistributableFirmware = true;
-  # If wifi still doesn't show up after first boot, fall back to the
-  # proprietary driver instead:
-  #   boot.blacklistedKernelModules = [ "brcmfmac" ];
-  #   boot.extraModulePackages = [ config.boot.kernelPackages.broadcom_sta ];
-  #   boot.kernelModules = [ "wl" ];
+  boot.kernelModules = [ "wl" ];
+  boot.extraModulePackages = [ config.boot.kernelPackages.broadcom_sta ];
+  # Keep the in-kernel Broadcom drivers from grabbing the card first.
+  boot.blacklistedKernelModules = [ "b43" "bcma" "ssb" "brcmsmac" "brcmfmac" ];
+  # broadcom-sta is flagged insecure in nixpkgs. Allow it by name (not the
+  # version-pinned permittedInsecurePackages string, which would break on the
+  # next kernel bump).
+  nixpkgs.config.allowInsecurePredicate = pkg:
+    builtins.elem (lib.getName pkg) [ "broadcom-sta" ];
 
   # --- Users ---------------------------------------------------------
   users.users.kmf = {
     isNormalUser = true;
     description = "kmf";
-    extraGroups = [ "wheel" "networkmanager" "video" "audio" ];
+    extraGroups = [ "wheel" "networkmanager" "video" "audio" "input" ];
     shell = pkgs.fish;
   };
   programs.fish.enable = true;
@@ -82,8 +93,14 @@
   powerManagement.enable = true;
   services.tlp.enable = true;   # battery life tuning, disable if it fights mbpfan
 
-  # Backlight control
+  # Screen backlight control
   hardware.acpilight.enable = true;
+
+  # Keyboard backlight (applesmc LED smc::kbd_backlight). brightnessctl's udev
+  # rules chgrp the leds/backlight sysfs nodes so a non-root user can write
+  # them; the kbd_backlight LED node is granted to the `input` group (see kmf's
+  # extraGroups). F5/F6 (KEY_KBDILLUM{DOWN,UP}) are bound in home.nix.
+  services.udev.packages = [ pkgs.brightnessctl ];
 
   # Touchpad
   services.libinput.enable = true;
