@@ -19,6 +19,13 @@
   # Tailscale mesh VPN. After first rebuild, bring it up with `tailscale up`
   # (interactive auth in a browser). tailscaled coexists fine with NM.
   services.tailscale.enable = true;
+  # ModemManager for mobile broadband (USB LTE/cellular modems). There's no
+  # dedicated NixOS option - NetworkManager already pulls it in, but declare
+  # it explicitly so the daemon + mmcli are intentional and don't rely on NM
+  # internals. NM handles the connection side once a modem is detected.
+  systemd.packages = [ pkgs.modemmanager ];
+  systemd.services.ModemManager.wantedBy = [ "multi-user.target" ];
+  environment.systemPackages = [ pkgs.modemmanager ];   # mmcli
   time.timeZone = "Africa/Johannesburg";
   i18n.defaultLocale = "en_ZA.UTF-8";
   services.openssh.enable = true;

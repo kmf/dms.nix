@@ -10,5 +10,6 @@
     brave     # browser (Apple Music via web/PWA; cider is broken in nixpkgs 26.05)
     brightnessctl  # keyboard-backlight control (F5/F6 -> smc::kbd_backlight)
     insync    # proprietary multi-cloud sync client (unfree, prebuilt binary)
+    modem-manager-gui  # GTK frontend for ModemManager (SMS, USSD, signal)
   ];
 }
