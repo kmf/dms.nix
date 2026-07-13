@@ -11,5 +11,7 @@
     brightnessctl  # keyboard-backlight control (F5/F6 -> smc::kbd_backlight)
     insync    # proprietary multi-cloud sync client (unfree, prebuilt binary)
     modem-manager-gui  # GTK frontend for ModemManager (SMS, USSD, signal)
+    neovim    # terminal text editor
+    reaper    # digital audio workstation (unfree; free eval, licensed use)
   ];
 }
